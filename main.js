@@ -1,10 +1,33 @@
 async function recognize(base64, lang, options) {
     const { config, utils } = options;
     const { tauriFetch: fetch, cacheDir, readBinaryFile, http } = utils;
-    let { token } = config;
+    let { tokens, customPrompt} = config;
   
     let file_path = `${cacheDir}pot_screenshot_cut.png`;
     let fileContent = await readBinaryFile(file_path);
+
+    let prompt = '';
+    if(!customPrompt) {
+      prompt= '请识别图片中的内容。对于数学公式和数学符号，请使用标准的LaTeX格式输出，' + 
+                        '使用$$作为数学公式环境。要求：\n' +
+                        '1. 所有数学公式和单个数学符号都要用LaTeX格式\n' +
+                        '2. 普通文本保持原样\n' +
+                        '3. 对于行内公式使用$单个符号$\n' +
+                        '4. 对于独立公式块使用$$公式$$\n' +
+                        '5. 保持原文的段落格式\n' +
+                        '请尽可能精确地转换每个数学符号。'
+    }else {
+      prompt = customPrompt;
+    }
+      
+    let token = '';
+    if (tokens) {
+      const tokenArray = tokens.split(',');
+      const randomIndex = Math.floor(Math.random() * tokenArray.length);
+      token = tokenArray[randomIndex].trim();
+    } else {
+      throw new Error('No tokens available');
+    }
   
     const uploadResponse = await fetch('https://chat.qwenlm.ai/api/v1/files/', {
       method: 'POST',
@@ -45,7 +68,7 @@ async function recognize(base64, lang, options) {
             {
               role: 'user',
               content: [
-                { type: 'text', text: '请严格只返回图片中的内容，不要添加任何解释、描述或多余的文字' },
+                { type: 'text', text: prompt},
                 { type: 'image', image: imageId } // 使用上传后的图片 ID
               ],
             },

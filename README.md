@@ -26,9 +26,9 @@
 
 ![image-20250113230602351](https://5a352de.webp.li/2025/01/b58c75b149d9cdd35e64426bad251a9d.png)
 
-2.输入刚才获得的 token
+2.输入刚才获得的 token，多个 token 用 `,` 隔开，Prompt 为可选配置，不填则使用默认 Prompt
 
-![image-20250113230721848](https://5a352de.webp.li/2025/01/fa669e72d972ac2fc8ceb4b0ee2be177.png)
+![image-20250113235410567](https://5a352de.webp.li/2025/01/16b75a5e3823c2fac8dd1c9799a616f0.png)
 
 3. 在 Pot-热键设置 里面可以设置文字识别的快捷键
 

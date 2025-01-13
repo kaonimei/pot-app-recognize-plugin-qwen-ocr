@@ -6,8 +6,13 @@
   "homepage": "https://github.com/sun-i/pot-app-recognize-plugin-qwen-ocr",
   "needs": [
     {
-      "key": "token",
+      "key": "tokens",
       "display": "token",
+      "type": "input"
+    },
+    {
+      "key": "customPrompt",
+      "display": "Prompt[可选]",
       "type": "input"
     }
   ],
