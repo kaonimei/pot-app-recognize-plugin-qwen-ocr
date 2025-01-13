@@ -1,49 +1,68 @@
 async function recognize(base64, lang, options) {
     const { config, utils } = options;
-    const { tauriFetch } = utils;
-    let { apikey, engine } = config;
-    base64 = `data:image/png;base64,${base64}`;
-
-    if (apikey === undefined || apikey.length === 0) {
-        throw "apikey not found";
-    }
-    if (engine === undefined || engine.length === 0) {
-        engine = "1";
-    }
-
-    let res = await tauriFetch('https://api.ocr.space/parse/image', {
-        method: "POST",
-        header: {
-            apikey,
-            "content-type": "application/x-www-form-urlencoded"
-        },
-        body: {
-            type: "Form",
-            payload: {
-                base64Image: base64,
-                OCREngine: engine,
-                language: lang
-            }
+    const { tauriFetch: fetch, cacheDir, readBinaryFile, http } = utils;
+    let { token } = config;
+  
+    let file_path = `${cacheDir}pot_screenshot_cut.png`;
+    let fileContent = await readBinaryFile(file_path);
+  
+    const uploadResponse = await fetch('https://chat.qwenlm.ai/api/v1/files/', {
+      method: 'POST',
+      headers: {
+        'content-type': 'multipart/form-data',
+        'authorization': 'Bearer ' + token,
+      },
+      body: http.Body.form(
+        {
+          file: {
+            file: fileContent,
+            mime: 'image/png',
+            fileName: 'pot_screenshot_cut.png',
+          }
         }
-    })
-
+      )
+    });
+  
+    const uploadData = uploadResponse.data;
+  
+    if (!uploadData.id) throw new Error('文件上传失败');
+    let imageId = uploadData.id;
+  
+    const res = await fetch('https://chat.qwenlm.ai/api/chat/completions', {
+      method: 'POST',
+      headers: {
+        'accept': '*/*',
+        'authorization': `Bearer ` + token,
+        'Content-Type': 'application/json',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0'
+      },
+      body: {
+        type: 'Json',
+        payload: {
+          stream: false,
+          model: 'qwen-vl-max-latest',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: '请严格只返回图片中的内容，不要添加任何解释、描述或多余的文字' },
+                { type: 'image', image: imageId } // 使用上传后的图片 ID
+              ],
+            },
+          ],
+          session_id: '1',
+          chat_id: '2',
+          id: '3',
+        }
+      }
+    });
+  
     if (res.ok) {
-        const { result } = res.data;
-        const { ErrorMessage, ParsedResults } = result;
-        if (ErrorMessage) {
-            throw ErrorMessage;
-        }
-        if (ParsedResults) {
-            let target = "";
-            for (let i in ParsedResults) {
-                const { ParsedText } = i;
-                target += ParsedText;
-            }
-            return target;
-        } else {
-            throw JSON.stringify(result);
-        }
+      const data = res.data;
+      return data.choices[0].message.content;
     } else {
-        throw JSON.stringify(res);
+      throw `Http Request Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
     }
-}
+  
+  }
+  
