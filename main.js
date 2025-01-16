@@ -8,14 +8,18 @@ async function recognize(base64, lang, options) {
 
     let prompt = '';
     if(!customPrompt) {
-      prompt= '请识别图片中的内容。对于数学公式和数学符号，请使用标准的LaTeX格式输出，' + 
-                        '使用$$作为数学公式环境。要求：\n' +
-                        '1. 所有数学公式和单个数学符号都要用LaTeX格式\n' +
-                        '2. 普通文本保持原样\n' +
-                        '3. 对于行内公式使用$单个符号$\n' +
-                        '4. 对于独立公式块使用$$公式$$\n' +
-                        '5. 保持原文的段落格式\n' +
-                        '请尽可能精确地转换每个数学符号。'
+      prompt= `
+            请识别图片中的内容。对于数学公式和数学符号，请使用标准的LaTeX格式输出，并用美元符号$或$$括起来。要求：
+            1. 所有数学公式和单个数学符号都要用LaTeX格式，按照标准LaTeX格式转换，并用美元符号$或$$括起来。
+            2. 普通文本保持原样。
+            3. 严格保持原文的段落格式和换行，不需要显式输出换行符，只需保持原文的样式。
+            4. 对于代码块，请使用 markdown 格式输出，使用\`\`\`包裹代码块。
+            5. 对于非数学符号的特殊字符或格式，请按照原文格式处理。
+            6. 对于公式中的变量或特殊符号，请确保其准确性和一致性。
+            7. 对于复杂的数学公式，如矩阵、方程组等，请使用相应的LaTeX环境（如matrix、align等）进行转换，并用美元符号$或$$括起来。
+            8. 对于上下标、分数、根号等特殊数学符号，请确保其格式正确无误，并用美元符号$或$$括起来。
+            9.表格内容请以Markdown格式呈现。
+            `;
     }else {
       prompt = customPrompt;
     }
@@ -84,7 +88,8 @@ async function recognize(base64, lang, options) {
       const data = res.data;
       return data.choices[0].message.content;
     } else {
-      throw `Http Request Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
+      throw `Http Reques
+      t Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
     }
   
   }
