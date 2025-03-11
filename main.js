@@ -1,10 +1,43 @@
 async function recognize(base64, lang, options) {
-    const { config, utils } = options;
-    const { tauriFetch: fetch, cacheDir, readBinaryFile, http } = utils;
-    let { tokens, customPrompt} = config;
-  
-    let file_path = `${cacheDir}pot_screenshot_cut.png`;
-    let fileContent = await readBinaryFile(file_path);
+  const { config, utils } = options;
+  const { tauriFetch: fetch, cacheDir, readBinaryFile, http } = utils;
+  let { auth_type, auth_value, customPrompt, cookie, token } = config;
+
+  // 兼容旧版本配置
+  if (cookie && !auth_value) {
+    auth_type = "cookie";
+    auth_value = cookie;
+  } else if (token && !auth_value) {
+    auth_type = "token";
+    auth_value = token;
+  }
+
+  if (!auth_value) {
+    throw new Error("没有提供认证信息");
+  }
+
+  // 获取 token
+  let tokenValue = "";
+  let cookieValue = "";
+
+  if (auth_type === "token") {
+    tokenValue = auth_value;
+    // 如果直接使用token，我们不需要cookie
+    cookieValue = "";
+  } else if (auth_type === "cookie") {
+    cookieValue = auth_value;
+    // 从cookie中提取token
+    const tokenMatch = cookieValue.match(/token=([^;]+)/);
+    if (!tokenMatch) {
+      throw new Error("Cookie格式无效：找不到token");
+    }
+    tokenValue = tokenMatch[1];
+  } else {
+    throw new Error("认证类型无效");
+  }
+
+  let file_path = `${cacheDir}pot_screenshot_cut.png`;
+  let fileContent = await readBinaryFile(file_path);
 
   let prompt = "";
   if (!customPrompt) {
