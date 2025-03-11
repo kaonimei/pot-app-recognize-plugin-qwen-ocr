@@ -6,8 +6,17 @@
   "homepage": "https://github.com/ling-drag0n/pot-app-recognize-plugin-qwen-ocr",
   "needs": [
     {
-      "key": "tokens",
-      "display": "token",
+      "key": "auth_type",
+      "display": "认证方式",
+      "type": "select",
+      "options": {
+        "cookie": "Cookie",
+        "token": "Token"
+      }
+    },
+    {
+      "key": "auth_value",
+      "display": "认证值",
       "type": "input"
     },
     {
