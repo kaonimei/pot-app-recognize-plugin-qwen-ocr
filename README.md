@@ -6,7 +6,7 @@
 
 ### 添加插件到 Pot
 
-1.[下载插件](https://github.com/sun-i/pot-app-recognize-plugin-qwen-ocr/releases)；
+1.[下载插件](https://github.com/kaonimei/pot-app-recognize-plugin-qwen-ocr/releases)；
 
 2.打开 Pot-服务设置-文字识别-添加外部插件-安装外部插件，选择下载得到的 `plugin.com.pot-app.qwen-ocr.potext` 文件；
 
@@ -14,7 +14,7 @@
 
 ### 获取 cookie
 
-打开 [Qwen](https://chat.qwenlm.ai/) 注册并登陆账户
+打开 [Qwen](https://chat.qwen.ai/) 注册并登陆账户
 
 `F12` 打开控制台-网络，进行对话，查看 `completions` 请求头里面的 cookie
 
