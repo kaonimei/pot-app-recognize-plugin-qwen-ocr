@@ -1,48 +1,18 @@
 async function recognize(base64, lang, options) {
   const { config, utils } = options;
   const { tauriFetch: fetch, cacheDir, readBinaryFile, http } = utils;
-  let { auth_type, auth_value, customPrompt, cookie, token } = config;
+  let { cookie, customPrompt } = config;
 
-  // 兼容旧版本配置
-  if (cookie && !auth_value) {
-    auth_type = "cookie";
-    auth_value = cookie;
-  } else if (token && !auth_value) {
-    auth_type = "token";
-    auth_value = token;
+  if (!cookie) {
+    throw new Error("No cookie provided");
   }
 
-  if (!auth_value) {
-    throw new Error("没有提供认证信息");
+  // 从cookie中提取token
+  const tokenMatch = cookie.match(/token=([^;]+)/);
+  if (!tokenMatch) {
+    throw new Error("Invalid cookie format: missing token");
   }
-
-  // 获取 token
-  let authHeader = "";
-  let cookieValue = "";
-
-  if (auth_type === "token") {
-    // 检查token是否已经包含Bearer前缀
-    if (auth_value.startsWith("Bearer ")) {
-      // 如果已经包含前缀，直接使用完整的auth_value作为认证头
-      authHeader = auth_value;
-    } else {
-      // 如果不包含前缀，添加前缀
-      authHeader = "Bearer " + auth_value;
-    }
-    // 如果直接使用token，我们不需要cookie
-    cookieValue = "";
-  } else if (auth_type === "cookie") {
-    cookieValue = auth_value;
-    // 从cookie中提取token
-    const tokenMatch = cookieValue.match(/token=([^;]+)/);
-    if (!tokenMatch) {
-      throw new Error("Cookie格式无效：找不到token");
-    }
-    // 创建带有Bearer前缀的认证头
-    authHeader = "Bearer " + tokenMatch[1];
-  } else {
-    throw new Error("认证类型无效");
-  }
+  const token = tokenMatch[1];
 
   let file_path = `${cacheDir}pot_screenshot_cut.png`;
   let fileContent = await readBinaryFile(file_path);
@@ -58,7 +28,7 @@ async function recognize(base64, lang, options) {
 5.  保持原文的段落格式和换行。
 6.  对于图片中存在的 Markdown 格式,在输出中保留其原始的 Markdown 格式(如：勾选框 - [ ] 和 - [x]，引用块 > 的格式以及内容 ，嵌套引用，嵌套列表，以及其他更多 Markdown 语法)。
 7.  确保所有数学符号都被正确包裹在\`$\`或\`$$\`中。
-8. 对于代码块，使用 markdown 格式输出，使用\`\`\`包裹代码块。
+8.  对于代码块，使用 markdown 格式输出，使用\`\`\`包裹代码块。
 对于验证码图片：
 1.  只输出验证码字符，不要加任何额外解释。
 2.  忽略干扰线和噪点。
@@ -68,21 +38,13 @@ async function recognize(base64, lang, options) {
     prompt = customPrompt;
   }
 
-  // 设置请求头
-  const headers = {
-    "content-type": "multipart/form-data",
-    authorization: authHeader,
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-  };
-
-  // 只有当使用cookie认证时才添加cookie头
-  if (auth_type === "cookie") {
-    headers.cookie = cookieValue;
-  }
-
-  const uploadResponse = await fetch("https://chat.qwen.ai/api/v1/files/", {
+  const uploadResponse = await fetch("https://chat.qwenlm.ai/api/v1/files/", {
     method: "POST",
-    headers: headers,
+    headers: {
+      "content-type": "multipart/form-data",
+      authorization: "Bearer " + token,
+      cookie: cookie,
+    },
     body: http.Body.form({
       file: {
         file: fileContent,
@@ -97,27 +59,20 @@ async function recognize(base64, lang, options) {
   if (!uploadData.id) throw new Error("文件上传失败");
   let imageId = uploadData.id;
 
-  // 设置完成请求的请求头
-  const completionHeaders = {
-    accept: "*/*",
-    authorization: authHeader,
-    "Content-Type": "application/json",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-  };
-
-  // 只有当使用cookie认证时才添加cookie头
-  if (auth_type === "cookie") {
-    completionHeaders.cookie = cookieValue;
-  }
-
-  const res = await fetch("https://chat.qwen.ai/api/chat/completions", {
+  const res = await fetch("https://chat.qwenlm.ai/api/chat/completions", {
     method: "POST",
-    headers: completionHeaders,
+    headers: {
+      accept: "*/*",
+      authorization: `Bearer ${token}`,
+      cookie: cookie,
+      "Content-Type": "application/json",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+    },
     body: {
       type: "Json",
       payload: {
         stream: false,
-        model: "qwen-max-latest",
+        model: "qwen2.5-vl-72b-instruct",
         messages: [
           {
             role: "user",
@@ -138,6 +93,6 @@ async function recognize(base64, lang, options) {
     const data = res.data;
     return data.choices[0].message.content;
   } else {
-    throw `Http请求错误\nHttp状态码: ${res.status}\n${JSON.stringify(res.data)}`;
+    throw `Http Request Error\nHttp Status: ${res.status}\n${JSON.stringify(res.data)}`;
   }
 }
