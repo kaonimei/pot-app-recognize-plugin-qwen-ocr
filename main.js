@@ -17,11 +17,18 @@ async function recognize(base64, lang, options) {
   }
 
   // 获取 token
-  let tokenValue = "";
+  let authHeader = "";
   let cookieValue = "";
 
   if (auth_type === "token") {
-    tokenValue = auth_value;
+    // 检查token是否已经包含Bearer前缀
+    if (auth_value.startsWith("Bearer ")) {
+      // 如果已经包含前缀，直接使用完整的auth_value作为认证头
+      authHeader = auth_value;
+    } else {
+      // 如果不包含前缀，添加前缀
+      authHeader = "Bearer " + auth_value;
+    }
     // 如果直接使用token，我们不需要cookie
     cookieValue = "";
   } else if (auth_type === "cookie") {
@@ -31,7 +38,8 @@ async function recognize(base64, lang, options) {
     if (!tokenMatch) {
       throw new Error("Cookie格式无效：找不到token");
     }
-    tokenValue = tokenMatch[1];
+    // 创建带有Bearer前缀的认证头
+    authHeader = "Bearer " + tokenMatch[1];
   } else {
     throw new Error("认证类型无效");
   }
@@ -63,7 +71,7 @@ async function recognize(base64, lang, options) {
   // 设置请求头
   const headers = {
     "content-type": "multipart/form-data",
-    authorization: "Bearer " + tokenValue,
+    authorization: authHeader,
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
   };
 
@@ -92,7 +100,7 @@ async function recognize(base64, lang, options) {
   // 设置完成请求的请求头
   const completionHeaders = {
     accept: "*/*",
-    authorization: `Bearer ${tokenValue}`,
+    authorization: authHeader,
     "Content-Type": "application/json",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
   };
