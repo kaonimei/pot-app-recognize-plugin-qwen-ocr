@@ -38,7 +38,7 @@ async function recognize(base64, lang, options) {
     prompt = customPrompt;
   }
 
-  const uploadResponse = await fetch("https://chat.qwenlm.ai/api/v1/files/", {
+  const uploadResponse = await fetch("https://chat.qwen.ai/api/v1/files/", {
     method: "POST",
     headers: {
       "content-type": "multipart/form-data",
@@ -59,7 +59,7 @@ async function recognize(base64, lang, options) {
   if (!uploadData.id) throw new Error("文件上传失败");
   let imageId = uploadData.id;
 
-  const res = await fetch("https://chat.qwenlm.ai/api/chat/completions", {
+  const res = await fetch("https://chat.qwen.ai/api/chat/completions", {
     method: "POST",
     headers: {
       accept: "*/*",
@@ -72,7 +72,7 @@ async function recognize(base64, lang, options) {
       type: "Json",
       payload: {
         stream: false,
-        model: "qwen2.5-vl-72b-instruct",
+        model: "qwen-max-latest",
         messages: [
           {
             role: "user",
