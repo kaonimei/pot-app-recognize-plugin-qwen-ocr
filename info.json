@@ -6,6 +6,17 @@
   "homepage": "https://github.com/kaonimei/pot-app-recognize-plugin-qwen-ocr",
   "needs": [
     {
+      "key": "model",
+      "display": "模型",
+      "type": "select",
+      "options": {
+        "qwen-max-latest": "Qwen2.5-Max",
+        "qwen-plus-latest": "Qwen2.5-Plus",
+        "qwq-32b": "QwQ-32B",
+        "qwen-turbo-latest": "Qwen2.5-Turbo"
+      }
+    },
+    {
       "key": "cookie",
       "display": "Cookie",
       "type": "input"
