@@ -3,8 +3,23 @@
   "plugin_type": "recognize",
   "icon": "favicon.png",
   "display": "QwenOCR",
-  "homepage": "https://github.com/ling-drag0n/pot-app-recognize-plugin-qwen-ocr",
+  "homepage": "https://github.com/kaonimei/pot-app-recognize-plugin-qwen-ocr",
   "needs": [
+    {
+      "key": "model",
+      "display": "模型",
+      "type": "select",
+      "options": {
+        "qwen-max-latest": "Qwen2.5-Max",
+        "qwen-plus-latest": "Qwen2.5-Plus",
+        "qwq-32b": "QwQ-32B",
+        "qwen-turbo-latest": "Qwen2.5-Turbo",
+        "qwen2.5-14b-instruct-1m": "Qwen2.5-14B-Instruct-1M",
+        "qvq-72b-preview": "QVQ-72B-Preview",
+        "qwen2.5-coder-32b-instruct": "Qwen2.5-Coder-32B-Instruct",
+        "qwen2.5-72b-instruct": "Qwen2.5-72B-Instruct"
+      }
+    },
     {
       "key": "cookie",
       "display": "Cookie（支持多个，使用逗号分隔）",

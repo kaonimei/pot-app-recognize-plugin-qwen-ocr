@@ -1,7 +1,7 @@
 async function recognize(base64, lang, options) {
   const { config, utils } = options;
   const { tauriFetch: fetch, cacheDir, readBinaryFile, http } = utils;
-  let { cookie, customPrompt } = config;
+  let { model, cookie, customPrompt } = config;
 
   if (!cookie) {
     throw new Error("No cookie provided");
@@ -93,7 +93,7 @@ async function recognize(base64, lang, options) {
             type: "Json",
             payload: {
               stream: false,
-              model: "qwen-max-latest",
+              model,
               messages: [
                 {
                   role: "user",
