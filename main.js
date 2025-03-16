@@ -55,7 +55,7 @@ async function recognize(base64, lang, options) {
       }
 
       try {
-        const uploadResponse = await fetch("https://chat.qwenlm.ai/api/v1/files/", {
+        const uploadResponse = await fetch("https://chat.qwen.ai/api/v1/files/", {
           method: "POST",
           headers: {
             "content-type": "multipart/form-data",
@@ -80,7 +80,7 @@ async function recognize(base64, lang, options) {
 
         let imageId = uploadData.id;
 
-        const res = await fetch("https://chat.qwenlm.ai/api/chat/completions", {
+        const res = await fetch("https://chat.qwen.ai/api/chat/completions", {
           method: "POST",
           headers: {
             accept: "*/*",
