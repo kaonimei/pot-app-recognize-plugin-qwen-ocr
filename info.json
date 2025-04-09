@@ -14,6 +14,7 @@
         "qwen-plus-latest": "Qwen2.5-Plus",
         "qwq-32b": "QwQ-32B",
         "qwen-turbo-latest": "Qwen2.5-Turbo",
+        "qwen2.5-omni-7b": "Qwen2.5-Omni-7B",
         "qvq-72b-preview-0310": "QVQ-Max",
         "qwen2.5-vl-32b-instruct": "Qwen2.5-VL-32B-Instruct",
         "qwen2.5-14b-instruct-1m": "Qwen2.5-14B-Instruct-1M",
