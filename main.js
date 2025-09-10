@@ -257,7 +257,7 @@ function isAuthenticationError(error) {
     "expired"
   ];
   
-  const errorMessage = error.message.toLowerCase();
+  const errorMessage = (error && error.message ? error.message : String(error)).toLowerCase();
   return authErrorMessages.some(msg => errorMessage.includes(msg));
 }
 
